@@ -1,7 +1,7 @@
 from win32 import win32gui
 import win32ui
 from ctypes import windll
-from PIL import Image, ImageOps
+from PIL import Image
 import numpy as nm
 import pytesseract
 import cv2
@@ -10,8 +10,10 @@ import time
 from playsound import playsound
 import os
 
-s = sched.scheduler(time.time, time.sleep) # Initialise scheduler for looping new world queue grab
-pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe" # Tesseract exe location
+# Initialise scheduler for looping new world queue grab
+s = sched.scheduler(time.time, time.sleep)
+# Tesseract exe location
+pytesseract.pytesseract.tesseract_cmd = "C:/Program Files/Tesseract-OCR/tesseract.exe"
 # Get alert mp3 and ensure exists
 alert_sound = os.getcwd() + "/alert.mp3"
 if not os.path.isfile(alert_sound):
@@ -53,15 +55,20 @@ def getNewWorldPosition():
         'RGB',
         (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
         bmpstr, 'raw', 'BGRX', 0, 1)
+
     win32gui.DeleteObject(saveBitMap.GetHandle())
     saveDC.DeleteDC()
     mfcDC.DeleteDC()
     win32gui.ReleaseDC(hwnd, hwndDC)
 
     # Crop image to queue position number (on a 2560x1440 display)
-    scrnshot = im.crop((1130, 650, 1440, 730))
+    # Adjust the values of the line below to adjust for different game resolutions
+    scrnshot = im.crop((1130, 650, 1440, 730))  # 2560x1440
+    # scrnshot = im.crop((850, 490, 1090, 550)) # 1920x1080
+
     # Convert image to monochrome for better OCR accuracy
     scrnshot = cv2.cvtColor(nm.array(scrnshot), cv2.COLOR_BGR2GRAY)
+
     # Get queue number
     tesstr = pytesseract.image_to_string(scrnshot, lang='eng')
     try:
